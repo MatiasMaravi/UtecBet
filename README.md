@@ -11,7 +11,7 @@ UtecBet
   
 ## Descripción del proyecto.
 ***
-Pendiente
+El proyecto de este curso se trata de implementar de una casa de apuestas deportivas de futbol.
 ***
 ## Objetivos principales 
 ***
