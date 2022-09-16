@@ -12,7 +12,7 @@ from flask_migrate import Migrate
 
 #Configuration
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://jerimy:12345@localhost:5432/utecbet2022'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:123@localhost:5432/utecbet2022'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -33,7 +33,8 @@ class  Team(db.Model):
     name = db.Column(db.String(),primary_key = True)
     winrate = db.Column(db.Float,nullable = False,default = 0)
     coach = db.Column(db.String(),nullable = False)
-
+    def __repr__(self):
+        return f'Team: name={self.name}, winrate={self.winrate}, coach={self.coach}'
 db.create_all()
 
 #Controllers
