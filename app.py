@@ -28,16 +28,11 @@ class User(db.Model):
         return f'User: id={self.id}, name={self.name}, password={self.password}, cash={self.cash}'
         
 
-class Apuesta(db.Model):
-    __tablename__ = 'apuestas'
-    codigo = db.Column(db.Integer, primary_key=True)
-    name_equipo = db.Column(db.String(), nullable=False)
-    monto = db.Column(db.Float, nullable=False)
-    ganancia = db.Column(db.Float, nullable=False)
-    result = db.Column(db.Boolean, nullable=False, default=False)
-    def __repr__(self):
-        return f'Apuesta: codigo={self.codigo}, name_equipo={self.name_equipo},monto={self.monto}, ganancia={self.ganancia}, result={self.result}'
-        
+class  Team(db.Model):
+    __tablename__ = 'teams'
+    name = db.Column(db.String(),primary_key = True)
+    winrate = db.Column(db.Float,nullable = False,default = 0)
+    coach = db.Column(db.String(),nullable = False)
 
 db.create_all()
 
