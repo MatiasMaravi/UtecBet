@@ -12,7 +12,7 @@ from flask_migrate import Migrate
 
 #Configuration
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://jerimy:12345@localhost:5432/utecbet2022'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:123@localhost:5432/utecbet2022'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -28,17 +28,13 @@ class User(db.Model):
         return f'User: id={self.id}, name={self.name}, password={self.password}, cash={self.cash}'
         
 
-class Apuesta(db.Model):
-    __tablename__ = 'apuestas'
-    codigo = db.Column(db.Integer, primary_key=True)
-    name_equipo = db.Column(db.String(), nullable=False)
-    monto = db.Column(db.Float, nullable=False)
-    ganancia = db.Column(db.Float, nullable=False)
-    result = db.Column(db.Boolean, nullable=False, default=False)
+class  Team(db.Model):
+    __tablename__ = 'teams'
+    name = db.Column(db.String(),primary_key = True)
+    winrate = db.Column(db.Float,nullable = False,default = 0)
+    coach = db.Column(db.String(),nullable = False)
     def __repr__(self):
-        return f'Apuesta: codigo={self.codigo}, name_equipo={self.name_equipo},monto={self.monto}, ganancia={self.ganancia}, result={self.result}'
-        
-
+        return f'Team: name={self.name}, winrate={self.winrate}, coach={self.coach}'
 db.create_all()
 
 #Controllers
