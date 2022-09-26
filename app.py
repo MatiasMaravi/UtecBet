@@ -1,4 +1,3 @@
-from curses.ascii import US
 from unittest import result
 from flask import (
     Flask, 
@@ -9,10 +8,10 @@ from flask import (
 )
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+databasepath = "postgres:1234"
 #Configuration
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://jerimy:12345@localhost:5432/utecbet2022'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{databasepath}@localhost:5432/utecbet2022'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

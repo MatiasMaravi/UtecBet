@@ -32,11 +32,11 @@ La casa de apuestas tendrá en un inicio, solo el acceso a partidos de fútbol, 
 ## Objetivos principales 
 ***
 ### Misión 
-Nuestra misión brindar entretenimiento donde los clientes puedan sentirse cómodos al momento de interactuar con nuestra página. Que a través de una Web API nuestra aplicación permita apostar a nuestros usuarios de forma segura y accesible.
+Nuestra misión es brindar entretenimiento, donde los clientes puedan sentirse cómodos al momento de interactuar con nuestra página. Que a través de una Web API nuestra aplicación permita apostar a nuestros usuarios de forma segura y accesible.
 
 ### Visión
 
-Deseamos lograr una empresa de apuestas que no solo este en el rubro de futbol, sino tambien con basquetball, voley, y otros deportes. Por otro lado, a través del aumento de la cantidad de usuarios nos plantemaos mejorar la calidad de interaccion e incluir distintos métodos de pago.
+Deseamos lograr una empresa de apuestas que no solo este en el rubro de futbol, sino también con basquetball, voley, y otros deportes. Por otro lado, a través del aumento de la cantidad de usuarios nos plantemaos mejorar la calidad de interacción e incluir distintos métodos de pago. 
 
 ***
 ## Modelos
@@ -51,7 +51,7 @@ Pendiente
 ***
 ## Licencia
 ***
-Pendiente
+La licencia será de acceso libre. Será una apuesta, donde el usuario practicará y será capaz aprender a manejar la aplicación. Será como un juego lúdico y de diversión, para que luego pase a la acción, apostar con dinero de verdad.
 ***
 ## Información acerca de las API. Solicitudes y respuestas de cada endpoint utilizado en el sistema.
 *** 
@@ -64,7 +64,7 @@ Pendiente
 ***
 ## Forma de autenticación. (Autenticación Básica: Usuario/Contraseña)
 ***
-Pendiente
+
 ***
 ## Manejo de errores HTTP: 500, 400, 300, 200, 100, etc.
 ***
