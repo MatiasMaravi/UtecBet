@@ -35,6 +35,28 @@ class Team(db.Model):
     coach = db.Column(db.String(),nullable = False)
     def __repr__(self):
         return f'Team: name={self.name}, winrate={self.winrate}, coach={self.coach}'
+
+class BET(db.Model):
+    __tablename__ = 'bet'
+    posible_ganador = db.Column(db.String(), nullable=False)
+    cuota = db.Column(db.Float, nullable=False, default=1.00)
+    resultado = db.Column(db.String(), nullable=False)
+    monto_apuesta = db.Column(db.Integer, nullable=False)
+    M_codigo= db.Column(db.Integer, primary_key = True)
+    C_transaccion= db.Column(db.Integer, db.ForeignKey('transaccion.id'), nullable=False)
+    def __repr__(self):
+        return f'BET: posible_ganador={self.posible_ganador}, cuota={self.cuota}, resultado={self.resultado}, monto_apuesta={self.monto_apuesta}, M_codigo={self.M_codigo}'
+
+class Transaccion(db.Model):
+    __tablename__ = 'transaccion'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), nullable=False)
+    password = db.Column(db.String(), nullable=False)
+    cash = db.Column(db.Integer, nullable=False,default=5000)
+    id_transaccion=db.relationship('BET', backref='transaccion',lazy=True)
+    def __repr__(self):
+        return f'Transaccion: id={self.id}, name={self.name}, password={self.password}, cash={self.cash}, id_transaccion={self.id_transaccion}'
+
 db.create_all()
 
 #Controllers
