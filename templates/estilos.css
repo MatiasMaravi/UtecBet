@@ -1,0 +1,55 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
+h1{
+    font-size: 150px;
+    font-family: 'Times New Roman', Times, serif;
+}
+h2{
+    font-size: 50px;
+    color:rgb(190, 7, 7);
+}
+h3{
+    color:darkblue;
+}
+
+body{
+    background-color: rgb(215, 215, 211);
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+#container{
+    width: 70%;
+    margin: 0px auto;
+    border: 12px solid salmon;
+ 
+}
+
+
+header{
+    background:white;
+    height: 150px;
+    width: 100%;
+    text-align: center;
+    border-bottom: 12px dashed green;
+    line-height: 140px;
+    color: crimson;
+}
+
+aside{
+    float: lef;
+    width: cal(20% -20px);
+    background-color: orange;
+    min-height: 50px;
+    padding-left: 10px;
+    padding-right: 10px;
+  
+}
+footer{
+    background: black;
+    color:white;
+    text-align: center;
+    height: 50px;
+    line-height:50px;
+}
