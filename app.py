@@ -1,30 +1,41 @@
 
 from curses.ascii import US
+from tabnanny import check
 from unittest import result
 from flask import (
     Flask, 
     render_template,
-    request,
-    jsonify,
-    abort
+    request
 )
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+
+from werkzeug.security import check_password_hash,generate_password_hash
+
+from config import config
+from flask_wtf import CSRFProtect
+import os
 
 #Configuration
 app = Flask(__name__)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://jerimy:12345@localhost:5432/utecbet2022'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
-#Models
+app.config
+db = SQLAlchemy(app)
+csrf = CSRFProtect(app)
+SECRET_KEY = os.urandom(32)
+app.config['SECRET_KEY'] = SECRET_KEY
+
+@classmethod
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(), nullable=False)
-    password = db.Column(db.String(), nullable=False)
-    cash = db.Column(db.Integer, nullable=False,default=5000)
+    username = db.Column(db.String(), unique=True, nullable=False)
+    password = db.Column(db.String(), unique=True, nullable=False)
+    cash = db.Column(db.Integer, default=5000,nullable=False)
+    def check_password(self, hashed_password,password):
+        return check_password_hash(hashed_password,password)
     def __repr__(self):
         return f'User: id={self.id}, name={self.name}, password={self.password}, cash={self.cash}'
         
@@ -61,27 +72,17 @@ db.create_all()
 
 #Controllers
 
-@app.route('/', methods=['GET'])
-def greetings():
-    return render_template('index.html')
-
-@app.route('/create', methods=['GET', 'POST'])
-def create():
-    if request.method == 'GET':
-        name = request.args.get('name')
-        password = request.args.get('password')
-    else:
-        name = request.form.get('name')
-        password = request.form.get('password')
-
-    user = User(name=name, password=password)
-    db.session.add(user)
-    db.session.commit()
-    
-    return_str = '{} {}'.format(name, "********")
-    return render_template('thankyou.html', data=return_str)
+@app.route('/')
+def login():
+    if request.method=='POST':
+        print(request.form['username'])
+        print(request.form['password'])
+        
+    return render_template('auth/login.html')
 
 if __name__ == '__main__':
+    app.config.from_object(config['development'])
     app.run(debug=True)
+    csrf = CSRFProtect(app)
 
 
