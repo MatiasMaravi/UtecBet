@@ -28,8 +28,10 @@ class User(UserMixin, db.Model):
 #login_manager
 @login_manager.user_loader
 def load_user(user_id):
+    #retorna el usuario a traves del id
     return User.query.get(int(user_id))
 
+#ayuda de flaskform para el logueo y creacion de usuario
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
@@ -89,9 +91,9 @@ def login():
                 login_user(user, remember=form.remember.data)
                 ##retornar a UtecBEt
                 return redirect(url_for('dashboard'))
-        ##retornar 
+
         else:
-            print('<h1>Invalid username or password</h1>')
+            #Invalido usuario o contraseña
             return render_template('index.html')
        
 
@@ -106,17 +108,19 @@ def signup():
         new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-
         return '<h1>New user has been created!</h1>'
-        #return '<h1>' + form.username.data + ' ' + form.email.data + ' ' + form.password.data + '</h1>'
-
+        
     return render_template('signup.html', form=form)
 
+
+
+#pagina principal de utecbet
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html', name=current_user.username)
 
+#regreso al menu principal
 @app.route('/logout')
 @login_required
 def logout():
