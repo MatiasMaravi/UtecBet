@@ -1,5 +1,6 @@
 
 from flask import Flask, render_template, redirect, url_for
+from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField, BooleanField
@@ -10,13 +11,14 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 
 #Modelos
 app = Flask(__name__)
-user = "postgres:123"
+user = "jerimy:12345"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{user}@{conection}/{data_base}'
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
+migrate = Migrate()
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -25,7 +27,6 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True)
-    email = db.Column(db.String(255))
     password = db.Column(db.String(255))
     cash = db.Column(db.Integer, default=5000,nullable=False)
 
@@ -42,7 +43,6 @@ class LoginForm(FlaskForm):
     remember = BooleanField('remember me')
 
 class RegisterForm(FlaskForm):
-    email = StringField('email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
 
@@ -72,12 +72,13 @@ class Transaccion(db.Model):
     name = db.Column(db.String(), nullable=False)
     password = db.Column(db.String(), nullable=False)
     cash = db.Column(db.Integer, nullable=False,default=5000)
-    id_transaccion=db.relationship('BET', backref='transaccion',lazy=True)
+    id_transaccion=db.relationship('Bet', backref='transacciones',lazy=True)
     def __repr__(self):
         return f'Transaccion: id={self.id}, name={self.name}, password={self.password}, cash={self.cash}, id_transaccion={self.id_transaccion}'
 
 with app.app_context():
-    db.create_all()
+    db.init_app(app)
+    migrate.init_app(app, db)
 
 ##Endpoints
 
@@ -109,10 +110,10 @@ def signup():
 
     if form.validate_on_submit():
         hashed_password = generate_password_hash(form.password.data, method='sha256')
-        new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        new_user = User(username=form.username.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        return '<h1>New user has been created!</h1>'
+        return render_template('user_create.html')
         
     return render_template('signup.html', form=form)
 
