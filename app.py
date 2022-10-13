@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm 
@@ -87,7 +88,6 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
@@ -117,7 +117,6 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-
 #pagina principal de utecbet
 @app.route('/dashboard')
 @login_required
@@ -133,3 +132,5 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
