@@ -1,4 +1,4 @@
-<<<<<<< jerimy
+
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm 
@@ -8,22 +8,7 @@ from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
-##Modelos
-=======
-from curses.ascii import US
-from unittest import result
-from flask import (
-    Flask, 
-    render_template,
-    request,
-    jsonify,
-    abort
-)
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-
-#Configuration
->>>>>>> main
+#Modelos
 app = Flask(__name__)
 user = "postgres:123"
 data_base = "utecbet2022"
@@ -70,7 +55,6 @@ class Team(db.Model):
     def __repr__(self):
         return f'Team: name={self.name}, winrate={self.winrate}, coach={self.coach}'
 
-<<<<<<< jerimy
 class Bet(db.Model):
     __tablename__ = 'bets'
     posible_ganador = db.Column(db.String(), nullable=False)
@@ -99,18 +83,11 @@ with app.app_context():
 
 @app.route('/')
 def index():
-=======
-#Controllers
-@app.route('/', methods=['GET'])
-def greetings():
->>>>>>> main
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-
-<<<<<<< jerimy
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
@@ -140,7 +117,6 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-
 #pagina principal de utecbet
 @app.route('/dashboard')
 @login_required
@@ -156,7 +132,5 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
-=======
-if __name__ == '__main__':
-    app.run(debug=True)
->>>>>>> main
+
+
