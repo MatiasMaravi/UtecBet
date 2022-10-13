@@ -57,11 +57,11 @@ class Team(db.Model):
 
 class Bet(db.Model):
     __tablename__ = 'bets'
+    M_codigo= db.Column(db.Integer, primary_key = True)
     posible_ganador = db.Column(db.String(), nullable=False)
     cuota = db.Column(db.Float, nullable=False, default=1.00)
     resultado = db.Column(db.String(), nullable=False)
     monto_apuesta = db.Column(db.Integer, nullable=False)
-    M_codigo= db.Column(db.Integer, primary_key = True)
     C_transaccion= db.Column(db.Integer, db.ForeignKey('transacciones.id'), nullable=False)
     def __repr__(self):
         return f'BET: posible_ganador={self.posible_ganador}, cuota={self.cuota}, resultado={self.resultado}, monto_apuesta={self.monto_apuesta}, M_codigo={self.M_codigo}'
@@ -96,12 +96,10 @@ def login():
                 login_user(user, remember=form.remember.data)
                 ##retornar a UtecBEt
                 return redirect(url_for('dashboard'))
-
         else:
             #Invalido usuario o contraseña
             return render_template('index.html')
        
-
     return render_template('login.html', form=form)
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -134,4 +132,5 @@ def logout():
 if __name__ == '__main__':
     app.run(debug=True)
 
+#Controllers
 
