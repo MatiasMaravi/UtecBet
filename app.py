@@ -7,7 +7,7 @@ from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
-##Modelos
+#Modelos
 app = Flask(__name__)
 user = "postgres:123"
 data_base = "utecbet2022"
