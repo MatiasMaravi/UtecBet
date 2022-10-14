@@ -43,7 +43,6 @@ def upgrade():
     op.drop_column('bets', 'C_transaccion')
     op.drop_column('bets', 'M_codigo')
     op.drop_column('bets', 'monto_apuesta')
-    op.drop_column('users', 'email')
     # ### end Alembic commands ###
 
 
