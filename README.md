@@ -43,11 +43,14 @@ Deseamos lograr una empresa de apuestas que no solo este en el rubro de futbol, 
 
 Los modelos a trabajar son: Usuario, Apuesta, Transacción, Partido
 
-![Imagen](https://i.ibb.co/FbhVZfs/DBP-MODELOS.jpg)
+![Imagen](images\DBP-MODELOS.jpg)
 
 ## Información acerca de las tecnologías utilizadas en Front-end, Back-end y Base de datos.
 ***
-Pendiente
+Flask-Login
+Flask-Admin
+Flask-Bootstrap
+
 ***
 ## Licencia
 ***
@@ -55,21 +58,27 @@ Pendiente
 ***
 ## Información acerca de las API. Solicitudes y respuestas de cada endpoint utilizado en el sistema.
 *** 
-Pendiente
+- index.html es el inicio del proyecto y el usuario puede escoger entre registrarse y logearse
+- /login -> Es el endpoint para que el usuario pueda iniciar sesion
+- /sigunp -> Es el endpoint para que el usuario pueda registrarse
+- /logout -> Es el endpoint para que el usuario salga de la sesion -No funciona Actualmente-
+- /matches -> Es el endpoint para que el usuario pueda ver los partidos del dia
 ***
 
 ## Hosts.
 ***
-Pendiente
+- localhost:5432
 ***
 ## Forma de autenticación. (Autenticación Básica: Usuario/Contraseña)
 ***
-Pendiente
+- Existe un Register y un login. Cuando el usuario se registra su contraseña se encripta
 ***
-## Manejo de errores HTTP: 500, 400, 300, 200, 100, etc.
+## Manejo de errores HTTP: 500, 400, 300, 200, 100, 
+
 ***
-Pendiente
+- Se ha manejado los errores 404 por si un usuario intenta iniciar sesion con una cuenta que no existe.
+- Se ha manejado los errores 409 por si un usuario intenta registrarse con una cuenta que ya existe en la base de datos.
 ***
 ## Cómo ejecutar el sistema (Deployment scripts).
 ***
-Pendiente
+python app.py
