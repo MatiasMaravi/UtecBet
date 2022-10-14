@@ -1,8 +1,11 @@
 
-from flask import Flask, render_template, redirect, url_for
+from logging import exception
+from django.shortcuts import render
+from flask import Flask, render_template, redirect, url_for, abort
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
-from flask_wtf import FlaskForm 
+from flask_wtf import FlaskForm
+from sqlalchemy import asc 
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Length
 from flask_sqlalchemy  import SQLAlchemy
@@ -35,6 +38,7 @@ class User(UserMixin, db.Model):
     cash = db.Column(db.Float, default=5000,nullable=False)
     bets = db.relationship("Bet",backref="bets",lazy=True)
     created_time = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    
     def __repr__(self):
         return f'Team: id={self.id}, username={self.username}, password={self.password}'
     
@@ -247,31 +251,39 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        if user:
-            if check_password_hash(user.password, form.password.data):
-                login_user(user, remember=form.remember.data)
-                app.logger.info('%s logged in successfully', user.username)
-                return redirect(url_for('dashboard'))
+        try:
+            if user:
+                if check_password_hash(user.password, form.password.data):
+                    login_user(user)
+                    app.logger.info('%s logged in successfully', user.username)
+                    return redirect(url_for('dashboard'))
 
-        else:
-            app.logger.info('%s failed to log in', user.username)
-            return render_template('index.html')
-       
+            else:
+                app.logger.info('%s failed to log in', user.username)
+                return render_template('index.html')
+        except Exception as e:
+            print(e)
+            abort(404)
+
 
     return render_template('login.html', form=form)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    form = RegisterForm()
+    try:
+        form = RegisterForm()
+        if form.validate_on_submit():
+            hashed_password = generate_password_hash(form.password.data, method='sha256')
+            new_user = User(username=form.username.data, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            return render_template('user_create.html')
+        return render_template('signup.html', form=form)
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        abort(409)
 
-    if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data, method='sha256')
-        new_user = User(username=form.username.data, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        return render_template('user_create.html')
-        
-    return render_template('signup.html', form=form)
 
 
 #pagina principal de utecbet
@@ -286,6 +298,15 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('error_404.html')
+
+@app.errorhandler(409)
+def not_found(error):
+    return render_template('error_409.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
