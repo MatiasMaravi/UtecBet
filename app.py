@@ -9,7 +9,8 @@ from wtforms.validators import InputRequired, Email, Length
 from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 #Modelos
 app = Flask(__name__)
 user = "postgres:123"
@@ -17,12 +18,14 @@ data_base = "utecbet2022"
 conection = "localhost:5432"
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{user}@{conection}/{data_base}'
+app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
 migrate = Migrate()
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -67,7 +70,7 @@ class User(UserMixin, db.Model):
             db.session.rollback()
         finally:
             db.session.close()
-        
+
 #login_manager
 @login_manager.user_loader
 def load_user(user_id):
@@ -222,6 +225,9 @@ class Bet(db.Model):
         finally:
             db.session.close()
         
+admin = Admin(app, name='super_user', template_mode='bootstrap4')
+
+admin.add_view(ModelView(User, db.session))
 
 with app.app_context():
     db.init_app(app)
@@ -241,11 +247,11 @@ def login():
         if user:
             if check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
-                ##retornar a UtecBEt
+                app.logger.info('%s logged in successfully', user.username)
                 return redirect(url_for('dashboard'))
 
         else:
-            #Invalido usuario o contraseña
+            app.logger.info('%s failed to log in', user.username)
             return render_template('index.html')
        
 
