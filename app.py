@@ -16,7 +16,7 @@ from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.sql import func
 #Modelos
 app = Flask(__name__)
-user = "jerimy:12345"
+user = "postgres:123"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
@@ -256,7 +256,7 @@ def login():
                 if check_password_hash(user.password, form.password.data):
                     login_user(user)
                     app.logger.info('%s logged in successfully', user.username)
-                    return redirect(url_for('dashboard'))
+                    return redirect(url_for('get_matches'))
 
             else:
                 app.logger.info('%s failed to log in', user.username)
@@ -299,6 +299,11 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route('/matches',methods=['GET'])
+def get_matches():
+    return render_template("matches.html",matches = Match.query.order_by('code').all())
+
+
 @app.errorhandler(404)
 def not_found(error):
     return render_template('error_404.html')
@@ -306,6 +311,7 @@ def not_found(error):
 @app.errorhandler(409)
 def not_found(error):
     return render_template('error_409.html')
+
 
 
 if __name__ == '__main__':
