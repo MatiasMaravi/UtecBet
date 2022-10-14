@@ -1,19 +1,19 @@
 
-from email.policy import default
 from flask import Flask, render_template, redirect, url_for
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField, BooleanField
-from wtforms.validators import InputRequired, Email, Length
+from wtforms.validators import InputRequired, Length
 from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from sqlalchemy.sql import func
 #Modelos
 app = Flask(__name__)
-user = "postgres:123"
+user = "jerimy:12345"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
@@ -34,7 +34,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(255))
     cash = db.Column(db.Float, default=5000,nullable=False)
     bets = db.relationship("Bet",backref="bets",lazy=True)
-
+    created_time = db.Column(db.DateTime(timezone=True), server_default=func.now())
     def __repr__(self):
         return f'Team: id={self.id}, username={self.username}, password={self.password}'
     
@@ -94,6 +94,7 @@ class Team(db.Model):
     name = db.Column(db.String(),primary_key = True)
     winrate = db.Column(db.Float,nullable = False,default = 0)
     coach = db.Column(db.String(),nullable = False)
+    time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     def __repr__(self):
         return f'Team: name={self.name}, winrate={self.winrate}, coach={self.coach}'
     
@@ -137,6 +138,7 @@ class Match(db.Model):
     local = db.Column(db.String(),nullable = False)
     winner = db.Column(db.String(), default = "Unknown")
     date = db.Column(db.String(),nullable = False)
+    time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     bets = db.relationship('Bet',backref='bets_',lazy=True)
     def __repr__(self):
         return f'Match: code={self.code}, visit={self.visit}, local={self.local}, winner={self.winner}, date={self.date}'
@@ -182,6 +184,7 @@ class Bet(db.Model):
     quota = db.Column(db.Float, nullable=False, default=1.00)
     bet_amount = db.Column(db.Float, nullable=False)
     result = db.Column(db.String(), nullable=False)
+    created_time = db.Column(db.DateTime(timezone=True), server_default=func.now())
     id_user = db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)
     match_code= db.Column(db.Integer, db.ForeignKey('matches.code'), nullable=False)
     def __repr__(self):
@@ -227,6 +230,7 @@ class Bet(db.Model):
 admin = Admin(app, name='super_user', template_mode='bootstrap4')
 
 admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Team, db.session))
 
 with app.app_context():
     db.init_app(app)
