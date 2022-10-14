@@ -1,4 +1,5 @@
 
+from email.policy import default
 from flask import Flask, render_template, redirect, url_for
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
@@ -12,7 +13,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 #Modelos
 app = Flask(__name__)
-user = "jerimy:12345"
+user = "postgres:123"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
@@ -31,7 +32,45 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
-    cash = db.Column(db.Integer, default=5000,nullable=False)
+    cash = db.Column(db.Float, default=5000,nullable=False)
+
+    def __repr__(self):
+        return f'Team: id={self.id}, username={self.username}, password={self.password}'
+    
+    def format(self):
+        return {
+            'id': self.id,
+            'username':self.username,
+            'password':self.password,
+            'cash':self.cash
+        }
+
+    def insert(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
+    def update(self):
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
 #login_manager
 @login_manager.user_loader
 def load_user(user_id):
@@ -54,31 +93,138 @@ class Team(db.Model):
     name = db.Column(db.String(),primary_key = True)
     winrate = db.Column(db.Float,nullable = False,default = 0)
     coach = db.Column(db.String(),nullable = False)
+    matches = db.relationship('Matches',backref='matches',lazy=True)
+    bets = db.relationship('Bets',backref='bets',lazy = True)
     def __repr__(self):
         return f'Team: name={self.name}, winrate={self.winrate}, coach={self.coach}'
+    
+    def format(self):
+        return {
+            'name': self.id,
+            'winrate':self.winrate,
+            'coach':self.coach
+        }
 
+    def insert(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
+    def update(self):
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+class Match(db.Model):
+    __tablename__ = "matches"
+    code = db.Column(db.Integer, primary_key=True)
+    visit = db.Column(db.String(), db.ForeignKey('teams.name'),nullable = False)
+    local = db.Column(db.String(), db.ForeignKey('teams.name'),nullable = False)
+    winner = db.Column(db.String(), default = "Unknown")
+    date = db.Column(db.String(),nullable = False)
+    bets = db.relationship('Bets',backref='bets',lazy=True)
+    def __repr__(self):
+        return f'Match: code={self.code}, visit={self.visit}, local={self.local}, winner={self.winner}, date={self.date}'
+
+    def format(self):
+        return {
+            'code': self.id,
+            'visit': self.visit,
+            'local': self.local,
+            'winner': self.winner,
+            'date':self.date
+        }
+
+    def insert(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
+    def update(self):
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
 class Bet(db.Model):
     __tablename__ = 'bets'
-    posible_ganador = db.Column(db.String(), nullable=False)
-    cuota = db.Column(db.Float, nullable=False, default=1.00)
-    resultado = db.Column(db.String(), nullable=False)
-    monto_apuesta = db.Column(db.Integer, nullable=False)
-    M_codigo= db.Column(db.Integer, primary_key = True)
-    C_transaccion= db.Column(db.Integer, db.ForeignKey('transacciones.id'), nullable=False)
-    def __repr__(self):
-        return f'BET: posible_ganador={self.posible_ganador}, cuota={self.cuota}, resultado={self.resultado}, monto_apuesta={self.monto_apuesta}, M_codigo={self.M_codigo}'
-
-class Transaccion(db.Model):
-    __tablename__ = 'transacciones'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(), nullable=False)
-    password = db.Column(db.String(), nullable=False)
-    cash = db.Column(db.Integer, nullable=False,default=5000)
-    id_transaccion=db.relationship('Bet', backref='transacciones',lazy=True)
+    quota = db.Column(db.Float, nullable=False, default=1.00)
+    bet_amount = db.Column(db.Float, nullable=False)
+    result = db.Column(db.String(), nullable=False)
+    id_user = db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)
+    match_code= db.Column(db.Integer, db.ForeignKey('matches.code'), nullable=False)
     def __repr__(self):
-        return f'Transaccion: id={self.id}, name={self.name}, password={self.password}, cash={self.cash}, id_transaccion={self.id_transaccion}'
+        return f'Bet: id={self.id}, quota={self.quota}, result={self.result}, bet_amount={self.bet_amount},id_user={self.id_user} ,match_code={self.match_code}'
+
+    def format(self):
+        return {
+            'id': self.id,
+            'quota':self.quota,
+            'result':self.result,
+            'bet_amount':self.bet_amount,
+            'id_user':self.id_user,
+            'match_code':self.match_code
+        }
 
 
+    def insert(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
+    def update(self):
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
 admin = Admin(app, name='super_user', template_mode='bootstrap4')
 
 admin.add_view(ModelView(User, db.session))
