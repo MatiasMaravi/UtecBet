@@ -33,6 +33,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
     cash = db.Column(db.Float, default=5000,nullable=False)
+    bets = db.relationship("Bet",backref="bets",lazy=True)
 
     def __repr__(self):
         return f'Team: id={self.id}, username={self.username}, password={self.password}'
@@ -93,8 +94,6 @@ class Team(db.Model):
     name = db.Column(db.String(),primary_key = True)
     winrate = db.Column(db.Float,nullable = False,default = 0)
     coach = db.Column(db.String(),nullable = False)
-    matches = db.relationship('Matches',backref='matches',lazy=True)
-    bets = db.relationship('Bets',backref='bets',lazy = True)
     def __repr__(self):
         return f'Team: name={self.name}, winrate={self.winrate}, coach={self.coach}'
     
@@ -130,15 +129,15 @@ class Team(db.Model):
             db.session.rollback()
         finally:
             db.session.close()
-        
+            
 class Match(db.Model):
     __tablename__ = "matches"
     code = db.Column(db.Integer, primary_key=True)
-    visit = db.Column(db.String(), db.ForeignKey('teams.name'),nullable = False)
-    local = db.Column(db.String(), db.ForeignKey('teams.name'),nullable = False)
+    visit = db.Column(db.String(),nullable = False)
+    local = db.Column(db.String(),nullable = False)
     winner = db.Column(db.String(), default = "Unknown")
     date = db.Column(db.String(),nullable = False)
-    bets = db.relationship('Bets',backref='bets',lazy=True)
+    bets = db.relationship('Bet',backref='bets_',lazy=True)
     def __repr__(self):
         return f'Match: code={self.code}, visit={self.visit}, local={self.local}, winner={self.winner}, date={self.date}'
 
