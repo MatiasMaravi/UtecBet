@@ -1,11 +1,4 @@
-import json
-import sys
-from logging import exception
-from tkinter import EXCEPTION
-from unittest import result
-from urllib import request, response
-from django.shortcuts import render
-from flask import Flask, render_template, redirect, url_for, abort, jsonify, request
+from flask import Flask, render_template, redirect, url_for, abort,request, jsonify
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -15,7 +8,7 @@ from wtforms.validators import InputRequired, Length
 from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.sql import func
 #Modelos
@@ -42,6 +35,7 @@ class User(UserMixin, db.Model):
     cash = db.Column(db.Float, default=5000,nullable=False)
     bets = db.relationship("Bet",backref="bets",lazy=True)
     created_time = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    is_admin= db.Column(db.Boolean,default=False)
     
     def __repr__(self):
         return f'Team: id={self.id}, username={self.username}, password={self.password}'
@@ -90,7 +84,6 @@ def load_user(user_id):
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
-    remember = BooleanField('remember me')
 
 class RegisterForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
@@ -235,11 +228,22 @@ class Bet(db.Model):
             db.session.rollback()
         finally:
             db.session.close()
-        
-admin = Admin(app, name='super_user', template_mode='bootstrap4')
 
-admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(Team, db.session))
+class AdminView(ModelView):
+    def is_accessible(self):
+        if current_user.is_authenticated:
+            if current_user.is_admin == True:
+                return current_user.is_authenticated
+            else:
+                return abort(404)
+        #return current_user.is_authenticated
+
+    def not_auth(self):
+        return "you are not authorized to use the admin dasboard"
+
+admin = Admin(app, name='super_user', template_mode="bootstrap4")
+admin.add_view(AdminView(User, db.session))
+admin.add_view(AdminView(Team, db.session))
 
 with app.app_context():
     db.init_app(app)
@@ -288,8 +292,23 @@ def signup():
         print(e)
         db.session.rollback()
         abort(409)
-
-
+@app.route('/creat_admin', methods=['GET','POST'])
+def creat_admin():
+    try:
+        if request.method == 'POST':
+            password=request.form['password']
+            hashed_password = generate_password_hash(password, method='sha256')
+            variable = request.form['secret_key']
+            if variable == "ut3cb3t":
+                new_user=User(username=request.form['username'], password=hashed_password,is_admin=True)
+                db.session.add(new_user)
+                db.session.commit()
+                return render_template('user_create.html')
+        return render_template('create_admin.html')
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        abort(409)
 
 #pagina principal de utecbet
 @app.route('/dashboard')

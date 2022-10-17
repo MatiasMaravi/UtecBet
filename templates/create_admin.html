@@ -1,0 +1,12 @@
+<html>
+    <h1>Create admin account</h1>
+    <form action="{{url_for('creat_admin')}}" method= "POST">
+        <input maxlength="15" minlength="4" type="username" placeholder="username" name="username"> <br><br>
+        <input maxlength="80" minlength="8" type="password" name="password" placeholder="enter your password" >
+        <input type="secret_key" name="secret_key" placeholder="enter your secret_key" >
+        <input type="submit" value="sign up">
+
+    </form>
+
+
+</html>
