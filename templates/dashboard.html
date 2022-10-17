@@ -30,8 +30,9 @@ Dashboard
           </div>
         </div>
       </nav>
-      
-        {% for match in matches %}       
+
+        {% for match in matches %}     
+          
             <div class = "Equipo1">
                 <div class="example-local">{{match.local}}</div>
                 <form id="Bet-create-local">
@@ -44,7 +45,7 @@ Dashboard
                     <input type="submit"class="btn btn-success" value="Bet"></input>
                 </form>   
             </div>
-            <div class = "Rival">
+            <div class = "Rival" id="userr" data-user="{{id_}}">
                 <meta>Vs.</meta>
             </div>
             <div class = "Equipo2">
@@ -59,14 +60,14 @@ Dashboard
                     <button type="submit" class="btn btn-success">Bet</button>
                 </form>   
             </div>
-        {% endfor %}    
+            {% endfor %}
     <script>
             document.getElementById('Bet-create-local').onsubmit = function(event) {
                 event.preventDefault();
                 const monto = document.getElementById('bet-local').value;
                 const collection = document.getElementsByClassName("example-local");
                 const equipo = collection[0].innerHTML;
-                
+                var usuario = document.getElementById("userr").getAttribute("data-user");
                 //const equipo = match.local;
                 fetch('/create_bet', {
                     method: 'POST',
@@ -74,7 +75,7 @@ Dashboard
                         'quota':1.5,
                         'bet_amount': monto,
                         'result':equipo,
-                        'id_user':1,
+                        'id_user':usuario,
                         'match_code':1
                     }),
                     headers: {
@@ -104,5 +105,6 @@ Dashboard
                 })
             }
     </script>
+     
       {% endblock %}
 </html>

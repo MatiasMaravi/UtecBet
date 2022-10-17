@@ -314,7 +314,10 @@ def creat_admin():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', name=current_user.username,matches = Match.query.order_by('code').all())
+    return render_template('dashboard.html', 
+    name=current_user.username,
+    matches = Match.query.order_by('code').all(),
+    id_=current_user.id)
 
 #regreso al menu principal
 @app.route('/logout')
