@@ -1,21 +1,24 @@
-
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, abort, jsonify, request
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
-from flask_wtf import FlaskForm 
+from flask_wtf import FlaskForm
+from sqlalchemy import asc 
 from wtforms import StringField, PasswordField, BooleanField
-from wtforms.validators import InputRequired, Email, Length
+from wtforms.validators import InputRequired, Length
 from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from sqlalchemy.sql import func
 #Modelos
 app = Flask(__name__)
-user = "jerimy:12345"
+user = "postgres:123"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{user}@{conection}/{data_base}'
+app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
 migrate = Migrate()
@@ -23,12 +26,52 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
-    cash = db.Column(db.Integer, default=5000,nullable=False)
+    cash = db.Column(db.Float, default=5000,nullable=False)
+    bets = db.relationship("Bet",backref="bets",lazy=True)
+    created_time = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    
+    def __repr__(self):
+        return f'Team: id={self.id}, username={self.username}, password={self.password}'
+    
+    def format(self):
+        return {
+            'id': self.id,
+            'username':self.username,
+            'password':self.password,
+            'cash':self.cash
+        }
+
+    def insert(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
+    def update(self):
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
 
 #login_manager
 @login_manager.user_loader
@@ -52,29 +95,144 @@ class Team(db.Model):
     name = db.Column(db.String(),primary_key = True)
     winrate = db.Column(db.Float,nullable = False,default = 0)
     coach = db.Column(db.String(),nullable = False)
+    time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     def __repr__(self):
         return f'Team: name={self.name}, winrate={self.winrate}, coach={self.coach}'
+    
+    def format(self):
+        return {
+            'name': self.id,
+            'winrate':self.winrate,
+            'coach':self.coach
+        }
 
+    def insert(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
+    def update(self):
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+            
+class Match(db.Model):
+    __tablename__ = "matches"
+    code = db.Column(db.Integer, primary_key=True)
+    visit = db.Column(db.String(),nullable = False)
+    local = db.Column(db.String(),nullable = False)
+    winner = db.Column(db.String(), server_default = "Unknown")
+    date = db.Column(db.String(),nullable = False)
+    time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    bets = db.relationship('Bet',backref='bets_',lazy=True)
+    def __repr__(self):
+        return f'Match: code={self.code}, visit={self.visit}, local={self.local}, winner={self.winner}, date={self.date}'
+
+    def format(self):
+        return {
+            'code': self.id,
+            'visit': self.visit,
+            'local': self.local,
+            'winner': self.winner,
+            'date':self.date
+        }
+
+    def insert(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
+    def update(self):
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
 class Bet(db.Model):
     __tablename__ = 'bets'
-    M_codigo= db.Column(db.Integer, primary_key = True)
-    posible_ganador = db.Column(db.String(), nullable=False)
-    cuota = db.Column(db.Float, nullable=False, default=1.00)
-    resultado = db.Column(db.String(), nullable=False)
-    monto_apuesta = db.Column(db.Integer, nullable=False)
-    C_transaccion= db.Column(db.Integer, db.ForeignKey('transacciones.id'), nullable=False)
-    def __repr__(self):
-        return f'BET: posible_ganador={self.posible_ganador}, cuota={self.cuota}, resultado={self.resultado}, monto_apuesta={self.monto_apuesta}, M_codigo={self.M_codigo}'
-
-class Transaccion(db.Model):
-    __tablename__ = 'transacciones'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(), nullable=False)
-    password = db.Column(db.String(), nullable=False)
-    cash = db.Column(db.Integer, nullable=False,default=5000)
-    id_transaccion=db.relationship('Bet', backref='transacciones',lazy=True)
+    quota = db.Column(db.Float, nullable=False, default=1.00)
+    bet_amount = db.Column(db.Float, nullable=False)
+    result = db.Column(db.String(), nullable=False)
+    created_time = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    id_user = db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)
+    match_code= db.Column(db.Integer, db.ForeignKey('matches.code'), nullable=False)
     def __repr__(self):
-        return f'Transaccion: id={self.id}, name={self.name}, password={self.password}, cash={self.cash}, id_transaccion={self.id_transaccion}'
+        return f'Bet: id={self.id}, quota={self.quota}, result={self.result}, bet_amount={self.bet_amount},id_user={self.id_user} ,match_code={self.match_code}'
+
+    def format(self):
+        return {
+            'id': self.id,
+            'quota':self.quota,
+            'result':self.result,
+            'bet_amount':self.bet_amount,
+            'id_user':self.id_user,
+            'match_code':self.match_code
+        }
+
+
+    def insert(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return self.format()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
+    def update(self):
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+admin = Admin(app, name='super_user', template_mode='bootstrap4')
+
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Team, db.session))
 
 with app.app_context():
     db.init_app(app)
@@ -91,29 +249,39 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        if user:
-            if check_password_hash(user.password, form.password.data):
-                login_user(user, remember=form.remember.data)
-                ##retornar a UtecBEt
-                return redirect(url_for('dashboard'))
-        else:
-            #Invalido usuario o contraseña
-            return render_template('index.html')
-       
+        try:
+            if user:
+                if check_password_hash(user.password, form.password.data):
+                    login_user(user)
+                    app.logger.info('%s logged in successfully', user.username)
+                    return redirect(url_for('get_matches'))
+
+            else:
+                app.logger.info('%s failed to log in', user.username)
+                return render_template('index.html')
+        except Exception as e:
+            print(e)
+            abort(404)
+
+
     return render_template('login.html', form=form)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    form = RegisterForm()
+    try:
+        form = RegisterForm()
+        if form.validate_on_submit():
+            hashed_password = generate_password_hash(form.password.data, method='sha256')
+            new_user = User(username=form.username.data, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            return render_template('user_create.html')
+        return render_template('signup.html', form=form)
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        abort(409)
 
-    if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data, method='sha256')
-        new_user = User(username=form.username.data, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        return render_template('user_create.html')
-        
-    return render_template('signup.html', form=form)
 
 
 #pagina principal de utecbet
@@ -129,8 +297,60 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route('/matches',methods=['GET'])
+def get_matches():
+    return render_template("matches.html",matches = Match.query.order_by('code').all())
+
+@app.route('/create_bet',methods = ['POST'] )
+def create_bet():
+    status = 500
+    try:
+        args = request.get_json()
+        id_ = args.get('id',None) 
+        quota = args.get('quota',None)
+        bet_amount = args.get('bet_amount',None)
+        result = args.get('result',None)
+        id_user = args.get('id_user',None)
+        match_code = args.get('match_code',None)
+        Apuesta = Bet.query.filter_by(id=id_).one_or_none()
+        
+        if Apuesta != None:
+            status = 409
+            abort(status)
+
+        if  quota == None or bet_amount == None or result == None or id_user == None or match_code == None:
+            status = 400
+            abort(status)
+
+        Apuesta = Bet(id=id_,quota=quota,bet_amount=bet_amount,result=result,id_user=id_user,match_code=match_code)
+
+        Apuesta = Apuesta.insert()
+        response = {
+            'success': True,
+            'persona': Apuesta,
+            'total_apuestas': len(Bet.query.all())
+        }
+        return jsonify(response)
+
+    except Exception as e:
+        print(e)
+        abort(status)
+
+@app.route('/bets/<bet_id>', methods=['DELETE'])
+def delete_bet(bet_id):
+    response = {}
+    Apuesta = Bet.query.get(bet_id)
+    Apuesta.delete()
+    response['success'] = True
+    return jsonify(response)
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('error_404.html')
+
+@app.errorhandler(409)
+def not_found(error):
+    return render_template('error_409.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
-
-#Controllers
-
