@@ -1,0 +1,58 @@
+*{
+    margin: 40px;
+    padding: 20px;
+}
+
+
+.Equipo1{
+    background-color:blue;
+    width:300px;
+    height:250px;
+    float: left;
+    font-size: 30px;
+    font-family: 'Times New Roman', Times, serif;
+    text-align: center;
+    color: white;
+
+
+}
+
+input::placeholder {
+    color: rgb(0, 0, 0);
+    font-size: 0.5em;
+    font-style: 'Times New Roman';
+    float: left;
+  }
+.Rival{
+    background-color:rgb(255, 255, 255);
+    width: 50px;
+    height:50px;
+    float: left;
+    font-size: 40px;
+    font-family: 'Times New Roman', Times, serif;
+    margin: 100 auto;
+    text-align: center;
+
+}
+input[type="number"] {
+    width: 150px;
+    height: 50px;
+    float: left;
+}
+input[type="submit"] {
+    width: 150px;
+    height: 50px;
+
+}
+.Equipo2{
+    background-color:red;
+    width:300px;
+    height:250px;
+    float: left;
+    font-size: 30px;
+    font-family: 'Times New Roman', Times, serif;
+    text-align: center;
+    color: white;
+}
+
+

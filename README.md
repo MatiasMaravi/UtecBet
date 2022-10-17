@@ -43,7 +43,7 @@ Deseamos lograr una empresa de apuestas que no solo este en el rubro de futbol, 
 
 Los modelos a trabajar son: Usuario, Apuesta, Transacción, Partido
 
-![Imagen](images\DBP-MODELOS.jpg)
+![Imagen](static\images\DBP-MODELOS.jpg)
 
 ## Información acerca de las tecnologías utilizadas en Front-end, Back-end y Base de datos.
 ***

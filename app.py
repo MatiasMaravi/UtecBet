@@ -1,7 +1,11 @@
-
+import json
+import sys
 from logging import exception
+from tkinter import EXCEPTION
+from unittest import result
+from urllib import request, response
 from django.shortcuts import render
-from flask import Flask, render_template, redirect, url_for, abort
+from flask import Flask, render_template, redirect, url_for, abort, jsonify, request
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -140,7 +144,7 @@ class Match(db.Model):
     code = db.Column(db.Integer, primary_key=True)
     visit = db.Column(db.String(),nullable = False)
     local = db.Column(db.String(),nullable = False)
-    winner = db.Column(db.String(), default = "Unknown")
+    winner = db.Column(db.String(), server_default = "Unknown")
     date = db.Column(db.String(),nullable = False)
     time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     bets = db.relationship('Bet',backref='bets_',lazy=True)
@@ -209,6 +213,7 @@ class Bet(db.Model):
         try:
             db.session.add(self)
             db.session.commit()
+            return self.format()
         except:
             db.session.rollback()
         finally:
@@ -303,6 +308,48 @@ def logout():
 def get_matches():
     return render_template("matches.html",matches = Match.query.order_by('code').all())
 
+@app.route('/create_bet',methods = ['POST'] )
+def create_bet():
+    status = 500
+    try:
+        args = request.get_json()
+        id_ = args.get('id',None) 
+        quota = args.get('quota',None)
+        bet_amount = args.get('bet_amount',None)
+        result = args.get('result',None)
+        id_user = args.get('id_user',None)
+        match_code = args.get('match_code',None)
+        Apuesta = Bet.query.filter_by(id=id_).one_or_none()
+        
+        if Apuesta != None:
+            status = 409
+            abort(status)
+
+        if  quota == None or bet_amount == None or result == None or id_user == None or match_code == None:
+            status = 400
+            abort(status)
+
+        Apuesta = Bet(id=id_,quota=quota,bet_amount=bet_amount,result=result,id_user=id_user,match_code=match_code)
+
+        Apuesta = Apuesta.insert()
+        response = {
+            'success': True,
+            'persona': Apuesta,
+            'total_apuestas': len(Bet.query.all())
+        }
+        return jsonify(response)
+
+    except Exception as e:
+        print(e)
+        abort(status)
+
+@app.route('/bets/<bet_id>', methods=['DELETE'])
+def delete_bet(bet_id):
+    response = {}
+    Apuesta = Bet.query.get(bet_id)
+    Apuesta.delete()
+    response['success'] = True
+    return jsonify(response)
 
 @app.errorhandler(404)
 def not_found(error):
@@ -312,9 +359,5 @@ def not_found(error):
 def not_found(error):
     return render_template('error_409.html')
 
-
-
 if __name__ == '__main__':
     app.run(debug=True)
-
-

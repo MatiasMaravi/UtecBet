@@ -1,72 +1,66 @@
+<!DOCTYPE HTML> 
+
 <html>
-
     <head>
-        <style>
-            *{
-    margin: 35px;
-    padding: 40px;
-}
-
-body{
-     background-color:greenyellow;
-}
-
-.Equipo1{
-    background-color:blue;
-    width:300px;
-    height:150px;
-    float: left;
-    font-size: 30px;
-    font-family: 'Times New Roman', Times, serif;
-    text-align: center;
-    color: white
-}
-
-.Ribal{
-    background-color:white;
-    width: 200px;
-    height:100px;
-    float: left;
-    font-size: 40px;
-    font-family: 'Times New Roman', Times, serif;
-
-}
-
-.Equipo3{
-    background-color:red;
-    width:250px;
-    color: white;
-    height:180px;
-    float: left;
-    font-size: 30px;
-    font-family: 'Times New Roman', Times, serif;
-    text-align: center;
-
-}
-
-.imagen{
-    padding: 12px 12px ;
-    
-
-}
-
-    </style>
         <title>Matches Today</title>
+        <link rel="stylesheet" type="text/css" href="/static/css/cajas.css" media="screen" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
 
     </head>
     <body>
-        <h1> MATCHES </h1>
-        <div class = "Equipo1">
-            <p>Chapecoense</p>
-            <button type="button" class="btn btn-success">Bet</button>
-        </div>
-        <div class = "Ribal">
-            <p>Vs.</p>
-        </div>
+        {% for match in matches %}       
+            <div class = "Equipo1">
+                <div class="example">{{match.local}}</div>
+               
+                <form id="Bet-create-local">
+                    <input
+                        type="number"
+                        name="bet"
+                        id="bet-local"
+                        placeholder="Place your bet"
+                    >
+                    <input type="submit"class="btn btn-success" value="Bet"></input>
+                </form>   
+            </div>
+            <div class = "Rival">
+                <meta>Vs.</meta>
+            </div>
+            <div class = "Equipo2">
+                <meta> {{match.visit}} </meta>
+                <form id="Bet-create-visit">
+                    <input
+                        type="number"
+                        name="bet"
+                        id="bet-visit"
+                        placeholder="Place your bet"
+                    >
+                    <button type="submit" class="btn btn-success">Bet</button>
+                </form>   
+            </div>
+        {% endfor %}
+    </body>
+    <script>
+            document.getElementById('Bet-create-local').onsubmit = function(event) {
+                event.preventDefault();
+                const monto = document.getElementById('bet-local').value;
+                const collection = document.getElementsByClassName("example");
+                const equipo = collection[0].innerHTML;
+                
+                //const equipo = match.local;
+                fetch('/create_bet', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'quota':1.5,
+                        'bet_amount': monto,
+                        'result':equipo,
+                        'id_user':1,
+                        'match_code':1
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+            }
+    </script>
     
-        <div class = "Equipo3">
-            <p>Atlético</p>
-            <button type="button" class="btn btn-success">Bet</button>
-        </div>
-      </body>
 </html>
