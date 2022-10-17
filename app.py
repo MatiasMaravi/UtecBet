@@ -265,7 +265,7 @@ def login():
                 if check_password_hash(user.password, form.password.data):
                     login_user(user)
                     app.logger.info('%s logged in successfully', user.username)
-                    return redirect(url_for('get_matches'))
+                    return redirect(url_for('dashboard'))
 
             else:
                 app.logger.info('%s failed to log in', user.username)
@@ -314,7 +314,7 @@ def creat_admin():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', name=current_user.username)
+    return render_template('dashboard.html', name=current_user.username,matches = Match.query.order_by('code').all())
 
 #regreso al menu principal
 @app.route('/logout')
@@ -323,6 +323,7 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+#No usado actualemte
 @app.route('/matches',methods=['GET'])
 def get_matches():
     return render_template("matches.html",matches = Match.query.order_by('code').all())
