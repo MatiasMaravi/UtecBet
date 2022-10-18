@@ -13,7 +13,7 @@ from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.sql import func
 #Modelos
 app = Flask(__name__)
-user = "postgres:123"
+user = "jerimy:12345"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'

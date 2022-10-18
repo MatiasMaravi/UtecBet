@@ -11,6 +11,13 @@ Dashboard
 
 
 {% block content %}
+<style>
+  body {
+    background-image: url('https://todosport.pe/wp-content/uploads/2022/08/Como-apuesta-la-gente-en-los-deportes.jpg');
+    background-repeat: no-repeat;
+    background-size:cover;
+  }
+  </style>
       <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
           <div class="navbar-header">
@@ -32,12 +39,14 @@ Dashboard
       </nav>
 
         {% for match in matches %}     
-            <div class = "Equipo1">
+            <div class = "Equipo1" style="color: rgb(255, 0, 234);">
                 <div class="example-local">{{match.local}}</div>
                 <form  id="{{match.local}}">
                     <input
                         type="number"
                         name="bet"
+                        min="1"
+                        max="5000"
                         id="bet-local-{{match.local}}"
                         placeholder="Place your bet"
                     >
@@ -45,13 +54,13 @@ Dashboard
                 </form>   
             </div>
 
-            <div class = "Rival" id="userr" data-user="{{id_}}">
+            <div class = "Rival" id="userr" data-user="{{id_}}" style="color: red;">
                 <meta>Vs.</meta>
             </div>
 
-            <div class = "Equipo2">
-              <div class="example-visit"> {{match.visit}} </div>
-                <form  id="{{match.visit}}">
+            <div class = "Equipo2" style="color: rgb(255, 0, 234);">
+              <div class="example-visit"> {{match.visit}}</div>
+                <form id="{{match.visit}}">
                     <input
                         type="number"
                         name="bet"
