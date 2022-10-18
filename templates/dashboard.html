@@ -32,41 +32,40 @@ Dashboard
       </nav>
 
         {% for match in matches %}     
-          
             <div class = "Equipo1">
                 <div class="example-local">{{match.local}}</div>
-                <form id="Bet-create-local">
+                <form  id="{{match.local}}">
                     <input
                         type="number"
                         name="bet"
-                        id="bet-local"
+                        id="bet-local-{{match.local}}"
                         placeholder="Place your bet"
                     >
                     <input type="submit"class="btn btn-success" value="Bet"></input>
                 </form>   
             </div>
+
             <div class = "Rival" id="userr" data-user="{{id_}}">
                 <meta>Vs.</meta>
             </div>
+
             <div class = "Equipo2">
               <div class="example-visit"> {{match.visit}} </div>
-                <form id="Bet-create-visit">
+                <form  id="{{match.visit}}">
                     <input
                         type="number"
                         name="bet"
-                        id="bet-visit"
+                        id="bet-visit-{{match.visit}}"
                         placeholder="Place your bet"
                     >
                     <button type="submit" class="btn btn-success">Bet</button>
                 </form>   
             </div>
-            {% endfor %}
+            
     <script>
-            document.getElementById('Bet-create-local').onsubmit = function(event) {
+                document.getElementById('{{match.local}}').onsubmit = function(event) {
                 event.preventDefault();
-                const monto = document.getElementById('bet-local').value;
-                const collection = document.getElementsByClassName("example-local");
-                const equipo = collection[0].innerHTML;
+                const monto = document.getElementById('bet-local-{{match.local}}').value;
                 var usuario = document.getElementById("userr").getAttribute("data-user");
                 //const equipo = match.local;
                 fetch('/create_bet', {
@@ -74,37 +73,42 @@ Dashboard
                     body: JSON.stringify({
                         'quota':1.5,
                         'bet_amount': monto,
-                        'result':equipo,
+                        'result':'{{match.local}}',
                         'id_user':usuario,
-                        'match_code':1
+                        'match_code':'{{match.code}}'
                     }),
                     headers: {
                         'Content-Type': 'application/json'
                     }
-                })
-            }
-            document.getElementById('Bet-create-visit').onsubmit = function(event) {
+                }).then(function(response){
+                    return response.json()
+                }).then(function(response_json){
+                  document.getElementById('bet-local-{{match.local}}').value = null;
+                });
+              }
+            document.getElementById("{{match.visit}}").onsubmit = function(event) {
                 event.preventDefault();
-                const monto = document.getElementById('bet-visit').value;
-                const collection = document.getElementsByClassName("example-visit");
-                const equipo = collection[0].innerHTML;
-                
-                //const equipo = match.local;
+                const monto = document.getElementById('bet-visit-{{match.visit}}').value;
+                var usuario = document.getElementById("userr").getAttribute("data-user");
                 fetch('/create_bet', {
                     method: 'POST',
                     body: JSON.stringify({
                         'quota':1.5,
                         'bet_amount': monto,
-                        'result':equipo,
-                        'id_user':1,
-                        'match_code':1
+                        'result':'{{match.visit}}',
+                        'id_user':usuario,
+                        'match_code':'{{match.code}}'
                     }),
                     headers: {
                         'Content-Type': 'application/json'
                     }
-                })
+                }).then(function(response){
+                    return response.json()
+                }).then(function(response_json){
+                  document.getElementById('bet-visit-{{match.visit}}').value = null;
+                });
             }
     </script>
-     
+    {% endfor %}
       {% endblock %}
 </html>
