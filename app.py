@@ -13,7 +13,7 @@ from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.sql import func
 #Modelos
 app = Flask(__name__)
-user = "jerimy:12345"
+user = "postgres:123"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
@@ -26,6 +26,45 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+class Admin_Account(db.Model):
+    __tablename__ = 'admin_accounts'
+    id = db.Column(db.Integer, primary_key=True)
+    money = db.Column(db.Integer, default = 0, nullable=False)
+    
+    def __repr__(self):
+        return f'Admin_Account: id={self.id}, money={self.money}'
+    
+    def format(self):
+        return {
+            'id': self.id,
+            'money':self.money
+        }
+
+    def insert(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+
+    def update(self):
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
+        
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -38,13 +77,12 @@ class User(UserMixin, db.Model):
     is_admin= db.Column(db.Boolean,default=False)
     
     def __repr__(self):
-        return f'Team: id={self.id}, username={self.username}, password={self.password}'
+        return f'Team: id={self.id}, username={self.username}, cash={self.cash}'
     
     def format(self):
         return {
             'id': self.id,
             'username':self.username,
-            'password':self.password,
             'cash':self.cash
         }
 
@@ -60,6 +98,7 @@ class User(UserMixin, db.Model):
     def update(self):
         try:
             db.session.commit()
+            return self.format()
         except:
             db.session.rollback()
         finally:
@@ -332,6 +371,35 @@ def logout():
 def get_matches():
     return render_template("matches.html",matches = Match.query.order_by('code').all())
 
+@app.route('/update_user/<id>',methods=['PATCH'])
+def update_user(id):
+    status = 500
+    try:
+        args = request.get_json()
+        username = args.get('username',None)
+        cash = args.get('cash',None)
+        user = User.query.filter_by(id=id).one_or_none()
+
+        if user == None:
+            status = 404
+            abort(status)
+
+        if username != None:
+            user.nombre=username
+        if cash != None:
+            user.cash-= float(cash)
+
+        user=user.update()
+
+        return jsonify({
+            'success': True,
+            'user':user
+        })
+
+    except Exception as e:
+        print(e)
+        abort(status)
+
 @app.route('/create_bet',methods = ['POST'] )
 def create_bet():
     status = 500
@@ -361,6 +429,9 @@ def create_bet():
             'persona': Apuesta,
             'total_apuestas': len(Bet.query.all())
         }
+        Cuenta = Admin_Account.query.filter_by(id=1).one_or_none()
+        Cuenta.money += 5; #Ganancia
+        Cuenta.update()
         return jsonify(response)
 
     except Exception as e:

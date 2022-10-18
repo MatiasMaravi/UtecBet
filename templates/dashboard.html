@@ -65,9 +65,17 @@ Dashboard
     <script>
                 document.getElementById('{{match.local}}').onsubmit = function(event) {
                 event.preventDefault();
-                const monto = document.getElementById('bet-local-{{match.local}}').value;
+                var monto = document.getElementById('bet-local-{{match.local}}').value;
                 var usuario = document.getElementById("userr").getAttribute("data-user");
                 //const equipo = match.local;
+                fetch('/update_user/{{id_}}',{
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        'cash':monto
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }});
                 fetch('/create_bet', {
                     method: 'POST',
                     body: JSON.stringify({
