@@ -13,7 +13,7 @@ from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.sql import func
 #Modelos
 app = Flask(__name__)
-user = "postgres:123"
+user = "jerimy:12345"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
@@ -32,7 +32,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
-    cash = db.Column(db.Float, default=5000,nullable=False)
+    cash = db.Column(db.Float, default=5000, nullable=False)
     bets = db.relationship("Bet",backref="bets",lazy=True)
     created_time = db.Column(db.DateTime(timezone=True), server_default=func.now())
     is_admin= db.Column(db.Boolean,default=False)
@@ -244,7 +244,8 @@ class AdminView(ModelView):
 admin = Admin(app, name='super_user', template_mode="bootstrap4")
 admin.add_view(AdminView(User, db.session))
 admin.add_view(AdminView(Team, db.session))
-
+admin.add_view(AdminView(Match, db.session))
+admin.add_view(AdminView(Bet, db.session))
 with app.app_context():
     db.init_app(app)
     migrate.init_app(app, db)
