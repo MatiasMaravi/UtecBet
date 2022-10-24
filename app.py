@@ -285,6 +285,7 @@ admin.add_view(AdminView(User, db.session))
 admin.add_view(AdminView(Team, db.session))
 admin.add_view(AdminView(Match, db.session))
 admin.add_view(AdminView(Bet, db.session))
+admin.add_view(AdminView(Admin_Account, db.session))
 with app.app_context():
     db.init_app(app)
     migrate.init_app(app, db)

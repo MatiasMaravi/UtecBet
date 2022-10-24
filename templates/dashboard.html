@@ -11,6 +11,13 @@ Dashboard
 
 
 {% block content %}
+<style>
+  body {
+    background-image: url('https://todosport.pe/wp-content/uploads/2022/08/Como-apuesta-la-gente-en-los-deportes.jpg');
+    background-repeat: no-repeat;
+    background-size:cover;
+  }
+  </style>
       <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
           <div class="navbar-header">
@@ -39,6 +46,8 @@ Dashboard
                         type="number"
                         name="bet"
                         id="bet-local-{{match.local}}"
+                        min="1"
+                        max="1000"
                         placeholder="Place your bet"
                     >
                     <input type="submit"class="btn btn-success" value="Bet"></input>
@@ -55,6 +64,8 @@ Dashboard
                     <input
                         type="number"
                         name="bet"
+                        min="1"
+                        max="1000"
                         id="bet-visit-{{match.visit}}"
                         placeholder="Place your bet"
                     >
