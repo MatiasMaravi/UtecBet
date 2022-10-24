@@ -1,12 +1,21 @@
 <html>
+    <style>
+        body {
+          background-image: url('https://i.pinimg.com/736x/14/99/40/14994037681874402d2e414bd6ad0bca.jpg');
+          background-repeat: no-repeat;
+          background-size:cover;
+        }
+    </style>
+    <div style="color: white;">
     <h1>Create admin account</h1>
     <form action="{{url_for('creat_admin')}}" method= "POST">
-        <input maxlength="15" minlength="4" type="username" placeholder="username" name="username"> <br><br>
+        username:
+        <input maxlength="15" minlength="4" type="username" placeholder="username" name="username">  <br><br>
+        password & secret_key: 
         <input maxlength="80" minlength="8" type="password" name="password" placeholder="enter your password" >
         <input type="secret_key" name="secret_key" placeholder="enter your secret_key" >
-        <input type="submit" value="sign up">
+        <input type="submit" vºalue="sign up">
 
     </form>
-
-
+    </div>
 </html>

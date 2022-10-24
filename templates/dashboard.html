@@ -39,12 +39,14 @@ Dashboard
       </nav>
 
         {% for match in matches %}     
-            <div class = "Equipo1">
+            <div class = "Equipo1" style="color: rgb(255, 251, 0);">
                 <div class="example-local">{{match.local}}</div>
-                <form  id="{{match.local}}">
+                <form  id="{{match.local}}"> 
                     <input
                         type="number"
-                        name="bet"
+                        name="bet"x
+                        min="1"
+                        max="5000"
                         id="bet-local-{{match.local}}"
                         min="1"
                         max="1000"
@@ -54,18 +56,22 @@ Dashboard
                 </form>   
             </div>
 
-            <div class = "Rival" id="userr" data-user="{{id_}}">
+            <div class = "Rival" id="userr" data-user="{{id_}}" style="color: red;">
                 <meta>Vs.</meta>
             </div>
 
-            <div class = "Equipo2">
-              <div class="example-visit"> {{match.visit}} </div>
-                <form  id="{{match.visit}}">
+            <div class = "Equipo2" style="color: rgb(255, 251, 0);">
+              <div class="example-visit"> {{match.visit}}</div>
+                <form id="{{match.visit}}">
                     <input
                         type="number"
                         name="bet"
                         min="1"
+<<<<<<< HEAD
                         max="1000"
+=======
+                        max="5000"
+>>>>>>> 256aab2a54e385acd3f605cc2b8933de32c5cd9c
                         id="bet-visit-{{match.visit}}"
                         placeholder="Place your bet"
                     >
