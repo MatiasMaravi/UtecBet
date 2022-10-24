@@ -1,7 +1,7 @@
 virtual/
-requirements.txt
 images
 view_page.html
 __pycache__
 practica.py
-
+backend/__pycache__
+backend/server/__pycache__
