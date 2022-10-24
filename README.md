@@ -41,15 +41,15 @@ Deseamos lograr una empresa de apuestas que no solo este en el rubro de futbol, 
 ***
 ## Modelos
 
-Los modelos a trabajar son: Usuario, Apuesta, Transacción, Partido
-
-![Imagen](static\images\DBP-MODELOS.jpg)
+Los modelos a trabajar son: Usuario, Apuesta, Transacción, Partido.
+![Imagen](backend\server\static\images\DBP-MODELOS.jpg)
 
 ## Información acerca de las tecnologías utilizadas en Front-end, Back-end y Base de datos.
+
 ***
-Flask-Login
-Flask-Admin
-Flask-Bootstrap
+* Flask-Login
+* Flask-Admin
+* Flask-Bootstrap
 
 ***
 ## Licencia
@@ -81,4 +81,14 @@ Pendiente
 ***
 ## Cómo ejecutar el sistema (Deployment scripts).
 ***
-python app.py
+* Installation in Windows
+```PowerShell
+$pip install -r requirements.txt
+```
+
+* Run in Windows
+```PowerShell
+$env:FLASK_APP="server"
+$env:FLASK_DEBUG="true"
+flask run
+```
