@@ -83,7 +83,7 @@ Pendiente
 ***
 * Installation in Windows
 ```PowerShell
-$pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 * Run in Windows
