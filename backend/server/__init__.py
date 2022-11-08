@@ -1,36 +1,26 @@
-from flask_login import (login_user, 
-    login_required, 
-    current_user, 
-    logout_user)
 from models import (
     setup_db,
     Bet, 
     User,
     Team,
     Match,
-    LoginForm,
     Admin_Account,
-    Admin,
-    RegisterForm,
-    AdminView,
     db)
 from flask import (
     Flask,
     abort,
     jsonify,
     request,
-    url_for,
-    render_template,
-    redirect
 )
+import jwt
+import datetime
 from flask_cors import CORS
-from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
 def create_app(test_config=None):
     app = Flask(__name__,template_folder='templates')
-    bootstrap = Bootstrap(app)
+    app.config['SECRET_KEY'] = 'utecuniversity'
     setup_db(app)
     CORS(app)
 
@@ -40,87 +30,89 @@ def create_app(test_config=None):
         response.headers.add('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PATCH, PUT, DELETE')
         return response
 
-    @app.route('/')
-    def index():
-        return render_template('index.html')
+    @app.route('/register', methods=['POST'])
+    def register():
+        body = request.get_json()
+        id = body.get('id',None)
+        username = body.get('username', None)
+        password = body.get('password', None)
 
-    @app.route('/login', methods=['GET', 'POST'])
+        if  username is None or password is None:
+            abort(422)
+
+        #Search
+        db_user = User.query.filter(User.username==username).first()
+        errors_to_send = []
+        if db_user is not None:
+            if db_user.username == username:
+                errors_to_send.append('An account with this username already exists')
+
+        if len(password) < 4:
+            errors_to_send.append('The length of the password is too short')
+
+        if len(errors_to_send) > 0:
+            return jsonify({
+                'success': False,
+                'code': 422,
+                'messages': errors_to_send
+            }), 422
+        if id == None:
+            user = User(username=username, password=password)
+            new_user_id = user.insert()
+        else:
+            user = User(id=id,  username=username, password=password)
+            new_user_id = user.insert()
+        token = jwt.encode({
+            'id': new_user_id,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        }, app.config['SECRET_KEY'])
+
+        return jsonify({
+            'success': True,
+            'token': str(token),
+            'user_id': new_user_id
+        })
+    @app.route('/login', methods=['POST'])
     def login():
-        form = LoginForm()
-        if form.validate_on_submit():
-            user = User.query.filter_by(username=form.username.data).first()
-            try:
-                if user:
-                    if check_password_hash(user.password, form.password.data):
-                        login_user(user)
-                        app.logger.info('%s logged in successfully', user.username)
-                        return redirect(url_for('dashboard'))
+        body = request.get_json()
+        username = body.get('username', None)
+        password = body.get('password', None)
 
-                else:
-                    app.logger.info('%s failed to log in', user.username)
-                    return render_template('index.html')
-            except Exception as e:
-                print(e)
-                abort(404)
+        user = User.query.filter(User.username==username).one_or_none()
+        is_logged = user is not None and user.verify_password(password)
+        if not is_logged:
+            abort(401)
+        else:
+            token = jwt.encode({
+                'id': str(user.get_user_id()),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            }, app.config['SECRET_KEY'])
+            return jsonify({
+                'success': True,
+                'token': token,
+                'username':username
+            })
 
-
-        return render_template('login.html', form=form)
-
-    @app.route('/signup', methods=['GET', 'POST'])
-    def signup():
+    @app.route('/users/<id>',methods=['DELETE'])
+    def delete_user(id):
+        status = 500
         try:
-            form = RegisterForm()
-            if form.validate_on_submit():
-                hashed_password = generate_password_hash(form.password.data, method='sha256')
-                new_user = User(username=form.username.data, password=hashed_password)
-                db.session.add(new_user)
-                db.session.commit()
-                return render_template('user_create.html')
-            return render_template('signup.html', form=form)
+            user = User.query.get(id)
+            if user == None:
+                status = 404
+                abort(status)
+            
+            user.delete()
+            return jsonify({
+                'success': True,
+                'delete_user':int(id)
+            })
         except Exception as e:
             print(e)
-            db.session.rollback()
-            abort(409)
-    @app.route('/creat_admin', methods=['GET','POST'])
-    def creat_admin():
-        try:
-            if request.method == 'POST':
-                password=request.form['password']
-                hashed_password = generate_password_hash(password, method='sha256')
-                variable = request.form['secret_key']
-                if variable == "ut3cb3t":
-                    new_user=User(username=request.form['username'], password=hashed_password,is_admin=True)
-                    db.session.add(new_user)
-                    db.session.commit()
-                    return render_template('user_create.html')
-            return render_template('create_admin.html')
-        except Exception as e:
-            print(e)
-            db.session.rollback()
-            abort(409)
+            abort(status)
 
-    #pagina principal de utecbet
-    @app.route('/dashboard')
-    @login_required
-    def dashboard():
-        return render_template('dashboard.html', 
-        name=current_user.username,
-        matches = Match.query.order_by('code').all(),
-        id_=current_user.id)
 
-    #regreso al menu principal
-    @app.route('/logout')
-    @login_required
-    def logout():
-        logout_user()
-        return redirect(url_for('index'))
-
-    #No usado actualemte
-    @app.route('/matches',methods=['GET'])
-    def get_matches():
-        return render_template("matches.html",matches = Match.query.order_by('code').all())
-
-    @app.route('/update_user/<id>',methods=['PATCH'])
+    @app.route('/users/<id>',methods=['PATCH'])
     def update_user(id):
         status = 500
         try:
@@ -197,9 +189,50 @@ def create_app(test_config=None):
 
     @app.errorhandler(404)
     def not_found(error):
-        return render_template('error_404.html')
+        return jsonify({
+            'success': False,
+            'code': 404,
+            'message': 'resource not found'
+        }), 404
+
+    @app.errorhandler(500)
+    def server_error(error):
+        return jsonify({
+            'success': False,
+            'code': 500,
+            'message': 'server error'
+        }), 500
+
+    @app.errorhandler(422)
+    def unprocessable(error):
+        return jsonify({
+            'success': False,
+            'code': 422,
+            'message': 'unprocessable entity'
+        }), 422
+
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify({
+            'success': False,
+            'code': 405,
+            'message': 'method not allowed'
+        }), 405
+
 
     @app.errorhandler(409)
-    def not_found(error):
-        return render_template('error_409.html')
+    def conflict(error):
+        return jsonify({
+            'success': False,
+            'code': 409,
+            'message': 'resource already exist'
+        }), 409
+
+    @app.errorhandler(401)
+    def unauthorized(error):
+        return jsonify({
+            'success': False,
+            'code': 401,
+            'message': 'Invalid login. Please try again'
+        }), 401
     return app

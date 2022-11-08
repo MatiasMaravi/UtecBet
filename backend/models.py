@@ -1,19 +1,11 @@
-from flask import  abort
 from flask_migrate import Migrate
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
-from wtforms.validators import InputRequired, Length
 from flask_sqlalchemy  import SQLAlchemy
-from flask_login import LoginManager, UserMixin, current_user
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.sql import func
+from werkzeug.security import generate_password_hash, check_password_hash
 #Modelos
 user = "postgres:123"
 data_base = "utecbet2022"
 conection = "localhost:5432"
-login_manager = LoginManager()
-login_manager.login_view = 'login'
 
 database_path = f'postgresql://{user}@{conection}/{data_base}'
 db = SQLAlchemy()
@@ -22,19 +14,12 @@ def setup_db(app, database_path=database_path):
     app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    login_manager.init_app(app)
     db.app=app
     migrate = Migrate()
-    admin = Admin(app, name='super_user', template_mode="bootstrap4")
-    admin.add_view(AdminView(User, db.session))
-    admin.add_view(AdminView(Team, db.session))
-    admin.add_view(AdminView(Match, db.session))
-    admin.add_view(AdminView(Bet, db.session))
-    admin.add_view(AdminView(Admin_Account, db.session))
 
     with app.app_context():
         db.init_app(app)
-        migrate.init_app(app, db)
+        db.create_all()
 
 class Admin_Account(db.Model):
     __tablename__ = 'admin_accounts'
@@ -76,16 +61,27 @@ class Admin_Account(db.Model):
         finally:
             db.session.close()
 
-class User(UserMixin, db.Model):
+class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True)
-    password = db.Column(db.String(255))
+    password_hash = db.Column(db.String(), nullable=False)
     cash = db.Column(db.Float, default=5000, nullable=False)
     bets = db.relationship("Bet",backref="bets",lazy=True)
     created_time = db.Column(db.DateTime(timezone=True), server_default=func.now())
     is_admin= db.Column(db.Boolean,default=False)
     
+    @property
+    def password(self):
+        raise AttributeError('Password is not defined')
+
+    @password.setter
+    def password(self, password):    
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
     def __repr__(self):
         return f'Team: id={self.id}, username={self.username}, cash={self.cash}'
     
@@ -100,6 +96,7 @@ class User(UserMixin, db.Model):
         try:
             db.session.add(self)
             db.session.commit()
+            return self.id
         except:
             db.session.rollback()
         finally:
@@ -123,22 +120,6 @@ class User(UserMixin, db.Model):
         finally:
             db.session.close()
 
-#login_manager
-@login_manager.user_loader
-def load_user(user_id):
-    #retorna el usuario a traves del id
-    return User.query.get(int(user_id))
-
-#ayuda de flaskform para el logueo y creacion de usuario
-class LoginForm(FlaskForm):
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
-
-class RegisterForm(FlaskForm):
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
-
-    
 class Team(db.Model):
     __tablename__ = 'teams'
     name = db.Column(db.String(),primary_key = True)
@@ -277,16 +258,4 @@ class Bet(db.Model):
             db.session.rollback()
         finally:
             db.session.close()
-
-class AdminView(ModelView):
-    def is_accessible(self):
-        if current_user.is_authenticated:
-            if current_user.is_admin == True:
-                return current_user.is_authenticated
-            else:
-                return abort(404)
-        #return current_user.is_authenticated
-
-    def not_auth(self):
-        return "you are not authorized to use the admin dasboard"
 
