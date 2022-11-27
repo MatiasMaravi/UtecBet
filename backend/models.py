@@ -132,7 +132,7 @@ class Team(db.Model):
     
     def format(self):
         return {
-            'name': self.id,
+            'name': self.name,
             'winrate':self.winrate,
             'coach':self.coach
         }
@@ -141,6 +141,7 @@ class Team(db.Model):
         try:
             db.session.add(self)
             db.session.commit()
+            return self.format()
         except:
             db.session.rollback()
         finally:

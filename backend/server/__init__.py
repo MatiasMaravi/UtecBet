@@ -142,7 +142,8 @@ def create_app(test_config=None):
             print(e)
             abort(status)
 
-    @app.route('/create_bet',methods = ['POST'] )
+
+    @app.route('/bets',methods = ['POST'] )
     def create_bet():
         status = 500
         try:
@@ -187,6 +188,75 @@ def create_app(test_config=None):
         Apuesta.delete()
         response['success'] = True
         return jsonify(response)
+
+    #Matches
+    @app.route('/matches',methods = ['GET'] )
+    def get_matches():
+
+        matches = Match.query.order_by('id').all()
+        total_matches = Match.query.count()
+
+        if len(matches) == 0:
+            abort(404)
+
+        return jsonify({
+            'success': True,
+            'matches': [match.format() for match in matches],
+            'total_matches': total_matches
+        })
+    
+    #TEAM
+    @app.route('/teams',methods = ['POST'] )
+    def create_team():
+        status = 500
+        try:
+            args = request.get_json()
+            name = args.get('name',None) 
+            winrate = args.get('winrate',None)
+            coach = args.get('coach',None)
+
+            team = Team.query.filter_by(name=name).one_or_none()
+            if team != None:
+                status = 409
+                abort(status)
+
+            if name == None or winrate == None or coach == None:
+                status = 400
+                abort(status)
+
+            team = Team(name = name,winrate = winrate,coach=coach)
+
+            team_ = team.insert()
+            return jsonify({
+                'success': True,
+                'team': team_,
+                'total_team': len(Team.query.all())
+            })
+        except Exception as e:
+            print(e)
+            abort(status)
+    
+    @app.route('/teams',methods = ['GET'] )
+    def get_teams():
+        status = 500
+        try:
+            selection = Team.query.all()
+            total_teams = Team.query.count()
+            if len(selection) == 0:
+                status=404
+                abort(status)
+
+            return jsonify({
+                'success': True,
+                'teams': [team.format() for team in selection],
+                'total_teams': total_teams
+            })
+
+        except Exception as e:
+            print(e)
+            abort(status)
+
+
 
     @app.errorhandler(404)
     def not_found(error):
