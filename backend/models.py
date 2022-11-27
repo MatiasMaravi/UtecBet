@@ -70,6 +70,8 @@ class User(db.Model):
     created_time = db.Column(db.DateTime(timezone=True), server_default=func.now())
     is_admin= db.Column(db.Boolean,default=False)
     
+    def get_user_id(self):
+        return self.id
     @property
     def password(self):
         raise AttributeError('Password is not defined')
