@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-    <img alt="utecbet logo" src="../assets/bet.jpg" />
     <ScreenInicio />
   </div>
 </template>
@@ -11,7 +10,8 @@ import ScreenInicio from '@/components/ScreenInicio.vue'
 
 export default {
   name: 'HomeView',
-  components: ScreenInicio,
   components: { ScreenInicio },
 }
 </script>
+
+<style></style>
