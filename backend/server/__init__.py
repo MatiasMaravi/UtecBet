@@ -193,7 +193,7 @@ def create_app(test_config=None):
     @app.route('/matches',methods = ['GET'] )
     def get_matches():
 
-        matches = Match.query.order_by('id').all()
+        matches = Match.query.order_by('code').all()
         total_matches = Match.query.count()
 
         if len(matches) == 0:
@@ -205,6 +205,43 @@ def create_app(test_config=None):
             'total_matches': total_matches
         })
     
+    @app.route('/matches',methods = ['POST'] )
+    def create_match():
+        status = 500
+        try:
+            args = request.get_json()
+            code = args.get('code',None) 
+            visit = args.get('visit',None)
+            local = args.get('local',None)
+            date = args.get('date',None)
+            match = Match.query.filter_by(code=code).one_or_none()
+            if match != None:
+                status = 409
+                abort(status)
+
+            if code == None or visit == None or local == None or date == None or visit==local:
+                status = 400
+                abort(status)
+
+            local_ = Team.query.filter_by(name=local).one_or_none()
+            visit_ = Team.query.filter_by(name=visit).one_or_none()
+            
+            if local_ == None or visit_ == None:
+                status = 400
+                abort(status)
+            match = Match(code = code,visit = visit,local=local,date=date)
+
+            match_ = match.insert()
+            return jsonify({
+                'success': True,
+                'match': match_,
+                'total_team': len(Match.query.all())
+            })
+        except Exception as e:
+            print(e)
+            abort(status)
+    
+
     #TEAM
     @app.route('/teams',methods = ['POST'] )
     def create_team():
@@ -306,4 +343,11 @@ def create_app(test_config=None):
             'code': 401,
             'message': 'Invalid login. Please try again'
         }), 401
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({
+            'success': False,
+            'code': 400,
+            'message': 'Bad Request'
+        }), 400
     return app

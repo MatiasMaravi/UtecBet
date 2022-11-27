@@ -3,7 +3,7 @@ from flask_sqlalchemy  import SQLAlchemy
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 #Modelos
-user = "jerimy:12345"
+user = "postgres:123"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 
@@ -178,7 +178,7 @@ class Match(db.Model):
 
     def format(self):
         return {
-            'code': self.id,
+            'code': self.code,
             'visit': self.visit,
             'local': self.local,
             'winner': self.winner,
@@ -189,6 +189,7 @@ class Match(db.Model):
         try:
             db.session.add(self)
             db.session.commit()
+            return self.format()
         except:
             db.session.rollback()
         finally:
