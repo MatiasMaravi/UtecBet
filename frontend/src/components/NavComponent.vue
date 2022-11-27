@@ -30,7 +30,9 @@
             </router-link>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Pricing</a>
+            <router-link to="/teams" class="nav-link">
+              Teams
+            </router-link>
           </li>
           <li class="nav-item dropdown">
             <a
@@ -54,3 +56,9 @@
     </div>
   </nav>
 </template>
+
+<script>
+export default {
+  name: 'NavComponent',
+}
+</script>
