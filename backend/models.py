@@ -3,7 +3,7 @@ from flask_sqlalchemy  import SQLAlchemy
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 #Modelos
-user = "postgres:123"
+user = "jerimy:12345"
 data_base = "utecbet2022"
 conection = "localhost:5432"
 

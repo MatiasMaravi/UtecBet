@@ -21,9 +21,6 @@
         href="https://fonts.googleapis.com/css?family=Nunito&display=swap"
         rel="stylesheet"
       />
-
-      <!-- Link hacia el archivo de estilos css -->
-      <link rel="stylesheet" href="css/login.css" />
     </head>
 
     <body>
@@ -31,7 +28,7 @@
         <img alt="image_main" src="../assets/bet.jpg" />
         <div id="contenedorcentrado">
           <div id="login">
-            <form id="loginform">
+            <form @submit.prevent="login">
               <label for="usuario">Usuario</label>
               <input
                 id="usuario"
@@ -57,14 +54,13 @@
           </div>
           <div id="derecho">
             <div class="titulo">
-              Bienvenido {{ usuario }} a la pagina de apuestas de la Universidad
+              Bienvenido a la pagina de apuestas de la Universidad
             </div>
             <hr />
             <div class="pie-form">
-              <a href="#">¿Perdiste tu contraseña?</a>
-              <a href="#">¿No tienes Cuenta? Registrate</a>
-              <hr />
-              <a href="#">« Volver</a>
+              <router-link to="/register">
+                Don't have an account? Register
+              </router-link>
             </div>
           </div>
         </div>
@@ -74,6 +70,14 @@
 </template>
 
 <script>
+import axios from 'axios'
+
+const apiClient = axios.create({
+  baseURL: 'http://127.0.0.1:5000',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
 export default {
   name: 'ScreenInicio',
   components: '',
@@ -82,6 +86,20 @@ export default {
       usuario: '',
       password: '',
     }
+  },
+  methods: {
+    login() {
+      console.log('login....')
+      apiClient
+        .post('/login', {
+          username: this.usuario,
+          password: this.password,
+        })
+        .then((response) => {
+          console.log({ response })
+        })
+        .catch((response) => console.log(response))
+    },
   },
 }
 </script>

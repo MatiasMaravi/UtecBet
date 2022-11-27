@@ -22,7 +22,7 @@ def create_app(test_config=None):
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'utecuniversity'
     setup_db(app)
-    CORS(app, origins=['http://127.0.0.1:8080', 'http://localhost:8080'], max_age=10)
+    CORS(app, origins=['http://localhost:8080', 'http://localhost:8080'])
 
     @app.after_request
     def after_request(response):
