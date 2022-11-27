@@ -19,15 +19,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 def create_app(test_config=None):
-    app = Flask(__name__,template_folder='templates')
+    app = Flask(__name__)
     app.config['SECRET_KEY'] = 'utecuniversity'
     setup_db(app)
-    CORS(app)
+    CORS(app, origins=['http://127.0.0.1:8080', 'http://localhost:8080'], max_age=10)
 
     @app.after_request
     def after_request(response):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorizations, true')
         response.headers.add('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PATCH, PUT, DELETE')
+        response.headers.add('Access-Control-Max-Age', 10)
         return response
 
     @app.route('/register', methods=['POST'])
