@@ -1,6 +1,6 @@
 <template>
   <NavComponent />
-  <router-view />
+  <router-view :key="$route.path" />
 </template>
 <script>
 import NavComponent from './components/NavComponent.vue'
