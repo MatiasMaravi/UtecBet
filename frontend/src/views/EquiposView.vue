@@ -34,7 +34,7 @@
 
 <script>
 const axios = require('axios')
-let id_aux = '7'
+let id_aux = '3'
 
 let options_3 = {
   method: 'GET',
@@ -52,7 +52,7 @@ export default {
     return {
       informacion: null,
       description: null,
-      id: '1',
+      _id: '1',
     }
   },
   created() {
