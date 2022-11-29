@@ -1,63 +1,61 @@
 <template>
-    <div class="box">
-      <h1> Matches: </h1>
-        <div class="Matches" v-for="match in matches" :key="match.code">
-            <a>{{match.local}}</a>
-            <a> VS </a>
-            <a>{{match.visit}}</a>
+  <div class="box">
+    <h1>Matches:</h1>
+    <div class="Matches" v-for="match in matches" :key="match.code">
+      <a>{{ match.local }}</a>
+      <a>VS</a>
+      <a>{{ match.visit }}</a>
 
-        <label for="bet">Bet: </label>
+      <label for="bet">Bet:</label>
 
-        <form @submit.prevent="register">
-            <input v-model="bet" type="text" name="bet" />
-            <br />
-      
-            <button type="submit">Register</button>
-            <br />
-        </form>
+      <form @submit.prevent="register">
+        <input v-model="bet" type="text" name="bet" />
+        <br />
 
-        </div>
+        <button type="submit">Register</button>
+        <br />
+      </form>
     </div>
-  </template>
-  
-  <script>
+  </div>
+</template>
 
+<script>
 import axios from 'axios'
-  
-  const apiClient = axios.create({
-    baseURL: 'http://127.0.0.1:5000',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-  
-  export default {
-    name: 'MatchesView',
-    data() {
+
+const apiClient = axios.create({
+  baseURL: 'http://127.0.0.1:5000',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+export default {
+  name: 'MatchesView',
+  data() {
     return {
       local: '',
       visit: '',
-      matches: null
+      matches: null,
     }
   },
-    methods: {
-      get_matches() {
-        apiClient
-          .get('/matches',)
-          .then((response) => {
-            console.log({ response })
-            this.matches = response.data.matches
-          })
-          .catch((response) => console.log(response))
-      },
+  methods: {
+    get_matches() {
+      apiClient
+        .get('/matches')
+        .then((response) => {
+          console.log({ response })
+          this.matches = response.data.matches
+        })
+        .catch((response) => console.log(response))
     },
-    created(){
-        this.get_matches();
-    }
-  }
-  </script>
-  
-  <style>
+  },
+  created() {
+    this.get_matches()
+  },
+}
+</script>
+
+<style>
 .Matches {
   width: 300px;
   border: 15px solid green;
@@ -65,7 +63,7 @@ import axios from 'axios'
   margin: 20px;
 }
 .box {
-    display: flex;
+  display: flex;
+  background: cornflowerblue;
 }
 </style>
-  
