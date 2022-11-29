@@ -1,93 +1,107 @@
 <template>
-  <section>
+  <section class="teams-player">
     <div class="teams">
-      <div v-for="team in teams" :key="team.id">
-        <p>{{ team.name }}</p>
+      <form @submit="team_id">
+        <label for="id_team">id</label>
         <br />
-        <img
-          class="teams-views"
-          :src="require(`@/assets/${team.image}`)"
-          :alt="team.name"
-        />
+        <input v-model="_id" type="text" name="id_team" />
+        <button type="submit">search</button>
+      </form>
+      <div v-if="informacion">
+        <div v-for="team in informacion.response" :key="team.id">
+          <p class="team-name">{{ team.team.name }}</p>
+          <img class="team_main" :src="team.team.logo" />
+          <br />
+          <div v-for="player in team.players" :key="player.id">
+            <div class="content-box">
+              <p class="player-name">{{ player.name }}</p>
+              <br />
+              <img class="players" :src="player.photo" />
+              <br />
+              <p class="info-player">
+                Position:{{ player.position }}
+                <br />
+                Age: {{ player.age }}
+              </p>
+            </div>
+            <br />
+          </div>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script>
-import teams from '@/teams'
+const axios = require('axios')
+let id_aux = '7'
+
+let options_3 = {
+  method: 'GET',
+  url: 'https://api-football-v1.p.rapidapi.com/v3/players/squads',
+  params: { team: id_aux },
+  headers: {
+    'X-RapidAPI-Key': 'dd596990d8msh3ada5c9de7498bdp15d212jsn2f2428932959',
+    'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com',
+  },
+}
 
 export default {
   name: 'EquiposViews',
   data() {
-    return { teams: teams.teams }
+    return {
+      informacion: null,
+      description: null,
+      id: '1',
+    }
   },
-  props: {
-    slug: {
-      type: String,
-      require: true,
-    },
-  },
-  methods: {},
-  computed: {
-    team() {
-      return teams.teams.find((t) => {
-        return t.slug
+  created() {
+    console.log('get teams by suad')
+    axios
+      .request(options_3)
+      .then((response) => {
+        console.log(response.data)
+        this.informacion = response.data
       })
-    },
+      .catch(function (error) {
+        console.error(error)
+      })
   },
 }
 </script>
 
 <style>
-.image-teams {
+.team_main {
   max-width: 600px;
-  height: auto;
-  width: auto;
-  max-height: 400px;
-}
-.teams-views {
-  display: flex;
-  justify-content: space-between;
-  width: 300px;
   height: 300px;
+  width: 300px;
+  max-height: 400px;
+  margin: auto;
+  display: block;
+}
+.players {
+  height: 200px;
+  width: 200px;
+  margin: auto;
+  display: block;
+}
+.content-box {
+  box-sizing: content-box;
+  width: 50%;
+  border: solid #5b6dcd 10px;
+  padding: 5px;
   margin: auto;
 }
-
-p {
-  margin: 0 40px;
+.teams-player {
+  background: #4decf1;
+}
+.info-player {
   font-size: 20px;
-  text-align: center;
 }
-
-.cards {
-  display: flex;
-}
-
-.cards img {
-  max-width: 200px;
-}
-
-.card {
-  padding: 0 20px;
-  position: relative;
-}
-
-.card__text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
+.player-name {
   font-size: 25px;
-  font-weight: bold;
-  text-decoration: none;
 }
-
-.image-teams {
-  max-width: 600px;
-  height: auto;
-  width: auto;
-  max-height: 400px;
+.team-name {
+  font-size: 70px;
 }
 </style>
