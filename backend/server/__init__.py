@@ -166,15 +166,18 @@ def create_app(test_config=None):
 
             Apuesta = Bet(id=id_,quota=quota,bet_amount=bet_amount,result=result,id_user=id_user,match_code=match_code)
 
+            user = User.query.filter_by(id=id_user).one_or_none()
+            user.cash -= bet_amount
+            user.update()
+
             Apuesta = Apuesta.insert()
             response = {
                 'success': True,
                 'persona': Apuesta,
                 'total_apuestas': len(Bet.query.all())
             }
-            Cuenta = Admin_Account.query.filter_by(id=1).one_or_none()
-            Cuenta.money += 5; #Ganancia
-            Cuenta.update()
+            
+            
             return jsonify(response)
 
         except Exception as e:
@@ -292,8 +295,7 @@ def create_app(test_config=None):
         except Exception as e:
             print(e)
             abort(status)
-
-
+    
 
     @app.errorhandler(404)
     def not_found(error):
